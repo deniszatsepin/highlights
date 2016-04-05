@@ -1,8 +1,8 @@
-var Koa = require('koa');
-var mount = require('koa-mount');
-var convert = require('koa-convert');
-var graphqlHTTP = require('koa-graphql');
-var schema = require('./app/schema');
+import Koa from 'koa';
+import mount from 'koa-mount';
+import convert from 'koa-convert';
+import graphqlHTTP from 'koa-graphql';
+import schema from './app/schema';
 
 var app = new Koa();
 

@@ -1,33 +1,39 @@
-const resolver = require('graphql-sequelize').resolver;
-const User = require('../../data/models').User;
-const G = require('graphql');
+import {resolver} from 'graphql-sequelize';
+import {User} from '../../data/models';
+import {
+  GraphQLObjectType,
+  GraphQLNonNull,
+  GraphQLInt,
+  GraphQLString,
+  GraphQLList
+} from 'graphql';
 
-const userType = new G.GraphQLObjectType({
+const userType = new GraphQLObjectType({
   name: 'User',
   description: 'A platform user',
   fields: {
     id: {
-      type: new G.GraphQLNonNull(G.GraphQLInt),
+      type: new GraphQLNonNull(GraphQLInt),
       description: 'The id of the user'
     },
     username: {
-      type: G.GraphQLString,
+      type: GraphQLString,
       description: 'The name of the user'
     },
     email: {
-      type: G.GraphQLString
+      type: GraphQLString
     }
   }
 });
 
 const usersField = {
-  type: new G.GraphQLList(userType),
+  type: new GraphQLList(userType),
   args: {
     limit: {
-      type: G.GraphQLInt
+      type: GraphQLInt
     },
     order: {
-      type: G.GraphQLString
+      type: GraphQLString
     }
   },
   resolve: resolver(User)
@@ -38,13 +44,13 @@ const userField = {
   args: {
     id: {
       description: 'id of the user',
-      type: new G.GraphQLNonNull(G.GraphQLInt)
+      type: new GraphQLNonNull(GraphQLInt)
     }
   },
   resolve: resolver(User)
 };
 
-module.exports =  {
+export default {
   users: usersField,
   user: userField
-};
+}
