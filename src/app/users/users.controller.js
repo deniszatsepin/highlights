@@ -15,7 +15,8 @@ class UsersController {
 			return User.create({
 				username: params.username,
 				email: params.email,
-				shadow_password: hashedPassword
+				shadow_password: hashedPassword,
+				salt: salt
 			});
 		}
 	}
