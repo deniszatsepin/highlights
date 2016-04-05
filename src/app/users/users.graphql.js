@@ -1,14 +1,17 @@
 import {resolver} from 'graphql-sequelize';
 import {User} from '../../data/models';
+import UserController from './users.controller';
+
 import {
   GraphQLObjectType,
+  GraphQLInputObjectType,
   GraphQLNonNull,
   GraphQLInt,
   GraphQLString,
   GraphQLList
 } from 'graphql';
 
-const userType = new GraphQLObjectType({
+const UserType = new GraphQLObjectType({
   name: 'User',
   description: 'A platform user',
   fields: {
@@ -26,8 +29,25 @@ const userType = new GraphQLObjectType({
   }
 });
 
+const UserCreateType = new GraphQLInputObjectType({
+  name: 'UserCreateType',
+  description: 'User type for registration',
+  fields: {
+    username: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'The name of the user'
+    },
+    email: {
+      type: new GraphQLNonNull(GraphQLString)
+    },
+    password: {
+      type: new GraphQLNonNull(GraphQLString)
+    }
+  }
+});
+
 const usersField = {
-  type: new GraphQLList(userType),
+  type: new GraphQLList(UserType),
   args: {
     limit: {
       type: GraphQLInt
@@ -40,7 +60,7 @@ const usersField = {
 };
 
 const userField = {
-  type: userType,
+  type: UserType,
   args: {
     id: {
       description: 'id of the user',
@@ -50,7 +70,25 @@ const userField = {
   resolve: resolver(User)
 };
 
+const createUser = {
+  type: UserType,
+  description: 'Create new user',
+  args: {
+    user: {
+      type: UserCreateType
+    }
+  },
+  resolve: (value, { user }) => {
+    return UserController.create(user);
+  }
+};
+
 export default {
-  users: usersField,
-  user: userField
-}
+  queries: {
+    users: usersField,
+    user: userField
+  },
+  mutations: {
+    user: createUser
+  }
+} 

@@ -1,9 +1,23 @@
-import {User} from '../data/models';
+import {User} from '../../data/models';
+import { makeSalt, hashPassword } from '../../utils/authenticate';
 
-export default class UsersController {
+class UsersController {
 
-	create(params) {
-
+	/**
+	 * Create new user with unic email, username and password
+	 * @param params
+   */
+	async create(params) {
+		if (params && params.password) {
+			const salt = await makeSalt(10);
+			const hashedPassword = await hashPassword(params.password, salt);
+			console.log(salt, hashedPassword);
+			return User.create({
+				username: params.username,
+				email: params.email,
+				shadow_password: hashedPassword
+			});
+		}
 	}
 
 	update(id) {
@@ -40,3 +54,5 @@ export default class UsersController {
 
 	}
 }
+
+export default new UsersController();
