@@ -1,11 +1,8 @@
-import userEndPoints from './users/users.graphql.js';
-import {
-  GraphQLSchema,
-  GraphQLObjectType
-} from 'graphql';
+var userEndPoints = require('./users/users.graphql.js');
+var G = require('graphql');
 
-export default new GraphQLSchema({
-  query: new GraphQLObjectType({
+module.exports = new G.GraphQLSchema({
+  query: new G.GraphQLObjectType({
     name: 'RootQueryType',
     fields: Object.assign({}, userEndPoints)
   })
