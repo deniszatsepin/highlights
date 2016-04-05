@@ -1,4 +1,4 @@
-import {Sequelize} from '../data/models';
+import {User} from '../data/models';
 
 export default class UsersController {
 
