@@ -1,6 +1,7 @@
 import {resolver} from 'graphql-sequelize';
 import {User} from '../../data/models';
 import UserController from './users.controller';
+import { ValidationError } from 'sequelize';
 
 import {
   GraphQLObjectType,
@@ -29,8 +30,8 @@ const UserType = new GraphQLObjectType({
   }
 });
 
-const UserCreateType = new GraphQLInputObjectType({
-  name: 'UserCreateType',
+const UserCreateInputType = new GraphQLInputObjectType({
+  name: 'UserCreateInputType',
   description: 'User type for registration',
   fields: {
     username: {
@@ -42,6 +43,32 @@ const UserCreateType = new GraphQLInputObjectType({
     },
     password: {
       type: new GraphQLNonNull(GraphQLString)
+    }
+  }
+});
+
+const InputError = new GraphQLObjectType({
+  name: 'InputError',
+  description: 'Input user errors',
+  fields: {
+    key: {
+      type: GraphQLString
+    },
+    messages: {
+      type: new GraphQLList(GraphQLString)
+    }
+  }
+});
+
+const MutationOutputType = new GraphQLObjectType({
+  name: 'MutationsOutputType',
+  description: 'All mutations returns data or errors field',
+  fields: {
+    data: {
+      type: UserType
+    },
+    errors: {
+      type: new GraphQLList(InputError)
     }
   }
 });
@@ -71,15 +98,38 @@ const userField = {
 };
 
 const createUser = {
-  type: UserType,
+  type: MutationOutputType,
   description: 'Create new user',
   args: {
     user: {
-      type: UserCreateType
+      type: UserCreateInputType
     }
   },
   resolve: (value, { user }) => {
-    return UserController.create(user);
+    return UserController
+      .create(user)
+      .then(
+        function(res) {
+          console.log('RES:', res);
+          return res;
+        },
+        function(err) {
+          console.log('ERR: ', err);
+          
+          if (err instanceof ValidationError) {
+            return {
+              errors: err.errors.map((err) => {
+                return {
+                  key: err.path,
+                  messages: [err.message]
+                };
+              })
+            }
+          }
+          
+          return err;
+        }
+      );
   }
 };
 
@@ -89,6 +139,6 @@ export default {
     user: userField
   },
   mutations: {
-    user: createUser
+    create_user: createUser
   }
 } 
